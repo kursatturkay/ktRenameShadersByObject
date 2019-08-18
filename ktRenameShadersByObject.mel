@@ -1,0 +1,31 @@
+proc string getSurfaceShader (string $objName)
+{
+  string $myShapeNode[] = `listRelatives -children -shapes $objName`;
+  string $mySGs[] = `listConnections -type shadingEngine $myShapeNode[0]`;
+  string $surfaceShader[] = `listConnections ($mySGs[0] + ".surfaceShader")`;
+  return $surfaceShader[0];
+}
+
+global proc ktRenameShadersByObject()
+{
+    string $meshObjects[] = listRelatives("-f","-p",ls("-type","mesh","-l","-ni"));
+    
+    string $_meshObjects[];
+    clear($_meshObjects);
+    for ($se in $meshObjects)
+    $_meshObjects[size($_meshObjects)] = `substring $se 2 (size($se))`;
+    //print $_meshObjects;
+    
+    for($obj_ in $_meshObjects)
+    {
+       // print ($obj_);
+       $a=getSurfaceShader($obj_);
+       
+       if (catchQuiet(rename($a,($obj_+"_Shader"))))
+         {print ("error : cannot rename:"+$a+" for "+$obj_+"\n");}
+       else
+         {print ($a+":ok-\n");}
+    }
+
+}
+ktRenameShadersByObject()
